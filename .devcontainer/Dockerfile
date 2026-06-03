@@ -7,6 +7,7 @@ ENV PIP_NO_CACHE_DIR=1
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
+    openssh-client \
     build-essential \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
