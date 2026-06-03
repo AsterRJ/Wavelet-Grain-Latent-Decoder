@@ -22,6 +22,7 @@ info/
 *.png
 *.pgm
 *.pdf
+!docs/assets/*.png
 
 # Private/generated datasets and model artifacts
 data/*

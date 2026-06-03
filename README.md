@@ -1,5 +1,12 @@
 # Weld Wavelet Latent Decoder
 
+<p align="center">
+  <img src="docs/assets/donor_sample_montage.png" alt="Donor weld-like samples used for latent-space detail transfer" width="47%">
+  <img src="docs/assets/generated_sample_montage.png" alt="Generated weld-like samples decoded from the learned wavelet latent prior" width="47%">
+</p>
+
+<p align="center"><em>Left: donor samples used by the latent decoder. Right: generated samples decoded from the learned wavelet latent prior.</em></p>
+
 This repository contains the current, cleaned-up weld-image latent-space pipeline:
 a learned continuous 2D lifting-wavelet codec, a Grassmannian metric over learned
 wavelet feature subspaces, and a lightweight metric-space prior that can generate
