@@ -1,0 +1,56 @@
+# Python/runtime noise
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# Local editor state
+.vscode/
+.DS_Store
+
+# Private source material and paper notes
+raw/
+info/
+*.jpg
+*.jpeg
+*.png
+*.pgm
+*.pdf
+
+# Private/generated datasets and model artifacts
+data/*
+!data/README.md
+runs/*
+!runs/README.md
+*.npz
+*.npy
+*.pkl
+*.pt
+*.ckpt
+*.onnx
+
+# Older experimental tracks kept locally but excluded from the public repo
+README_OPERATOR.md
+README_PDE.md
+README_VAE.md
+README_VQVAE.md
+prepare_patches.py
+weld_operator/
+weld_pde/
+weld_latent/checkpoint.py
+weld_latent/diagnose_pixelcnn.py
+weld_latent/export_vqvae.py
+weld_latent/generate.py
+weld_latent/generate_vqvae.py
+weld_latent/model.py
+weld_latent/train.py
+weld_latent/train_pixelcnn.py
+weld_latent/train_vqvae.py
+weld_latent/vqvae.py
+weld_latent/wavelet.py
