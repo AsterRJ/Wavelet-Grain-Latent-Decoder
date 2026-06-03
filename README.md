@@ -34,9 +34,10 @@ priors, and generated samples are ignored.
 7. Samples that prior and decodes new images by interpolating nearby wavelet latents
    with spherical detail interpolation.
 
-The current best raw-image path uses the wider prior at
-`runs/raw_learned_wavelet_prior_wide/prior.npz` when those private artifacts exist
-locally.
+The current best raw-image path is the pre-automation metric-density workflow:
+fit the wider prior at `runs/raw_learned_wavelet_prior_wide/prior.npz`, then
+generate with `weld_latent.generate_wavelet_codec` into
+`runs/raw_learned_wavelet_generated_density_wide`.
 
 ## Repository Layout
 
@@ -171,37 +172,60 @@ Wider prior, currently the recommended raw-image generator:
 python -m weld_latent.fit_wavelet_prior   --metric runs/raw_learned_wavelet_metric/metric.npz   --out runs/raw_learned_wavelet_prior_wide   --bandwidth-scale 0.85
 ```
 
-### 5. Generate Images Automatically
+### 5. Generate With The Known-Good Wide Density Workflow
 
-Once the raw codec, metric, and prior artifacts exist locally, generate fresh images
-from the decoder with one command:
+The recommended generator is the original metric-density probe, not the later
+automation wrapper. It uses the raw learned wavelet codec, the Grassmann/MDS
+metric, and the wider KDE prior, then writes the full diagnostic bundle:
+generated images, nearest-source matches, coarse donors, interpolation checks,
+coordinates, and `metrics.json`.
 
 ```bash
-JAX_PLATFORMS=cpu python -m weld_latent.auto_generate_wavelet   --out runs/raw_learned_wavelet_auto   --samples 32   --batch-size 16   --seed 12
+JAX_PLATFORMS=cpu python -m weld_latent.generate_wavelet_codec \
+  --checkpoint runs/raw_learned_wavelet_codec/checkpoint.pkl \
+  --codes runs/raw_learned_wavelet_codec/latent_codes.npz \
+  --metric runs/raw_learned_wavelet_metric/metric.npz \
+  --prior runs/raw_learned_wavelet_prior_wide/prior.npz \
+  --dataset data/raw_weld_256.npz \
+  --out runs/raw_learned_wavelet_generated_density_wide \
+  --samples 16 \
+  --seed 4
 ```
 
-By default, this uses:
+Important outputs:
 
 ```text
-runs/raw_learned_wavelet_codec/checkpoint.pkl
-runs/raw_learned_wavelet_codec/latent_codes.npz
-runs/raw_learned_wavelet_metric/metric.npz
-runs/raw_learned_wavelet_prior_wide/prior.npz
-data/raw_weld_256.npz
+runs/raw_learned_wavelet_generated_density_wide/generated_montage.png
+runs/raw_learned_wavelet_generated_density_wide/coarse_donor_montage.png
+runs/raw_learned_wavelet_generated_density_wide/nearest_source_montage.png
+runs/raw_learned_wavelet_generated_density_wide/interpolation_montage.png
+runs/raw_learned_wavelet_generated_density_wide/metrics.json
 ```
 
-Generated outputs:
+Verified local metrics:
 
 ```text
-runs/raw_learned_wavelet_auto/generated_00000.png
-runs/raw_learned_wavelet_auto/generated_montage.png
-runs/raw_learned_wavelet_auto/nearest_source_montage.png
-runs/raw_learned_wavelet_auto/sampled_metric_coordinates.csv
-runs/raw_learned_wavelet_auto/generated_metric_coordinates.csv
-runs/raw_learned_wavelet_auto/manifest.json
+edge-energy ratio vs source:   0.9884
+nearest-source MSE:            0.00208
+near-white fraction:           0.0000
+phase-mean range:              0.00157
 ```
 
-Use `--dataset ''` to skip nearest-source comparison for larger unattended batches.
+### 6. Optional Automated Smoke Sampling
+
+`weld_latent.auto_generate_wavelet` is useful for unattended smoke runs, but it is
+not currently the preferred quality path. It reuses the same raw codec, metric, and
+wide prior by default, yet the latest automated run was visually worse than the
+known-good wide density run and produced a higher nearest-source MSE. Treat it as
+a convenience wrapper until it reproduces the older generator behavior exactly.
+
+```bash
+JAX_PLATFORMS=cpu python -m weld_latent.auto_generate_wavelet \
+  --out runs/raw_learned_wavelet_auto \
+  --samples 32 \
+  --batch-size 16 \
+  --seed 12
+```
 
 Verified 8-sample smoke run:
 
@@ -223,7 +247,7 @@ JAX_PLATFORMS=cpu python -m weld_latent.fit_wavelet_metric   --checkpoint runs/r
 
 python -m weld_latent.fit_wavelet_prior   --metric runs/raw_learned_wavelet_metric/metric.npz   --out runs/raw_learned_wavelet_prior_wide --bandwidth-scale 0.85
 
-JAX_PLATFORMS=cpu python -m weld_latent.auto_generate_wavelet   --out runs/raw_learned_wavelet_auto --samples 32 --batch-size 16 --seed 12
+JAX_PLATFORMS=cpu python -m weld_latent.generate_wavelet_codec   --checkpoint runs/raw_learned_wavelet_codec/checkpoint.pkl   --codes runs/raw_learned_wavelet_codec/latent_codes.npz   --metric runs/raw_learned_wavelet_metric/metric.npz   --prior runs/raw_learned_wavelet_prior_wide/prior.npz   --dataset data/raw_weld_256.npz   --out runs/raw_learned_wavelet_generated_density_wide --samples 16 --seed 4
 ```
 
 ## Publishing To GitHub
